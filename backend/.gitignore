@@ -1,0 +1,5 @@
+# Build files
+target/
+
+# Java Server binary
+payara-micro.jar
