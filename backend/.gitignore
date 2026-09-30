@@ -3,3 +3,8 @@ target/
 
 # Java Server binary
 payara-micro.jar
+
+# Secrets
+.env
+.env.*
+!.env.example
