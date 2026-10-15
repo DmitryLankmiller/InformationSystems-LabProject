@@ -36,3 +36,14 @@ CREATE TABLE
         standard_of_living standard_of_living_enum,
         governor_id INTEGER NOT NULL REFERENCES human
     );
+
+CREATE OR REPLACE FUNCTION delete_coordinates_with_city()
+RETURNS TRIGGER AS $$
+BEGIN
+  DELETE FROM coordinates WHERE id = OLD.coordinates_id;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER delete_coordinates_with_city_trigger AFTER DELETE ON city
+FOR EACH ROW EXECUTE FUNCTION delete_coordinates_with_city();

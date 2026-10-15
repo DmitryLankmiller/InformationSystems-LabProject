@@ -6,5 +6,5 @@ import ru.ifmo.se.model.City;
 
 @Repository
 public interface CityRepository extends CrudRepository<City, Long> {
-
+    boolean existsById(long id);
 }

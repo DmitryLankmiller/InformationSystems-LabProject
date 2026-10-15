@@ -1,6 +1,5 @@
 package ru.ifmo.se.model;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -34,7 +33,7 @@ public class City {
 
     private String name; // Поле не может быть null, Строка не может быть пустой
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne
     @JoinColumn(name = "coordinates_id")
     private Coordinates coordinates; // Поле не может быть null
 
