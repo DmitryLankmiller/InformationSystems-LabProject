@@ -23,6 +23,7 @@ import ru.ifmo.se.dto.CityDto;
 import ru.ifmo.se.dto.CreateCityDto;
 import ru.ifmo.se.dto.PageResponse;
 import ru.ifmo.se.dto.UpdateCityDto;
+import ru.ifmo.se.exception.NothingToDeleteException;
 import ru.ifmo.se.model.City;
 import ru.ifmo.se.service.CityService;
 
@@ -64,8 +65,7 @@ public class CityResource {
                     .build();
         }
 
-        return Response.status(Response.Status.CONFLICT)
-                .build();
+        throw new NothingToDeleteException();
     }
 
     @PATCH
