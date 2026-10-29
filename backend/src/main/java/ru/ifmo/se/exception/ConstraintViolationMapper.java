@@ -19,8 +19,8 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         Set<ConstraintViolation<?>> constraintViolations = exception.getConstraintViolations();
 
         var dtoBuilder = ErrorDto.builder()
-                .code(ErrorCodes.CONSTRAINT_VIOLATION)
-                .message("Violation of data model constraints");
+            .code(ErrorCodes.CONSTRAINT_VIOLATION)
+            .message("Violation of data model constraints");
 
         List<ErrorDto.Details> detailsList = new ArrayList<>();
 
@@ -30,9 +30,9 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
             String propertyPath = constraint.getPropertyPath().toString();
 
             ErrorDto.Details details = ErrorDto.Details.builder()
-                    .field(propertyPath)
-                    .message(message)
-                    .build();
+                .field(propertyPath)
+                .message(message)
+                .build();
 
             detailsList.add(details);
         }
@@ -40,8 +40,8 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
         ErrorDto dto = dtoBuilder.details(detailsList).build();
 
         return Response.status(422)
-                .entity(dto)
-                .build();
+            .entity(dto)
+            .build();
     }
 
 }

@@ -25,8 +25,8 @@ public class SpecailFunctionsResource {
         City city = service.selectCityByMinTelephoneCode();
 
         return Response.ok()
-                .entity(CityDto.from(city))
-                .build();
+            .entity(CityDto.from(city))
+            .build();
     }
 
     @GET
@@ -35,8 +35,8 @@ public class SpecailFunctionsResource {
         long count = service.getCitiesCountBySeaLevel(meters);
 
         return Response.ok()
-                .entity(count)
-                .build();
+            .entity(count)
+            .build();
     }
 
     @GET
@@ -46,8 +46,8 @@ public class SpecailFunctionsResource {
 
         List<CityDto> dtos = cities.stream().map(CityDto::from).toList();
         return Response.ok()
-                .entity(dtos)
-                .build();
+            .entity(dtos)
+            .build();
     }
 
     @GET
@@ -56,20 +56,20 @@ public class SpecailFunctionsResource {
         double dist = service.calculateDistToSmallestCity();
 
         return Response.ok()
-                .entity(dist)
-                .build();
+            .entity(dist)
+            .build();
     }
 
     @GET
     @Path("calculate-dist-to-biggest")
     public Response calculateDistToBiggest(
-            @QueryParam("x0") @DefaultValue("0") double x0,
-            @QueryParam("y0") @DefaultValue("0") double y0,
-            @QueryParam("z0") @DefaultValue("0") double z0) {
+        @QueryParam("x0") @DefaultValue("0") double x0,
+        @QueryParam("y0") @DefaultValue("0") double y0,
+        @QueryParam("z0") @DefaultValue("0") double z0) {
         double dist = service.calculateDistToBiggestCity(x0, y0, z0);
 
         return Response.ok()
-                .entity(dist)
-                .build();
+            .entity(dist)
+            .build();
     }
 }

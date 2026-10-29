@@ -13,13 +13,13 @@ public class ProcessingMapper implements ExceptionMapper<ProcessingException> {
     @Override
     public Response toResponse(ProcessingException exception) {
         ErrorDto dto = ErrorDto.builder()
-                .code(ErrorCodes.PROCESSING_ERROR)
-                .message("Failed to process the request")
-                .build();
+            .code(ErrorCodes.PROCESSING_ERROR)
+            .message("Failed to process the request")
+            .build();
 
         return Response.status(Status.BAD_REQUEST)
-                .entity(dto)
-                .build();
+            .entity(dto)
+            .build();
     }
 
 }

@@ -13,9 +13,9 @@ public class CoordianatesDto {
 
     public static CoordianatesDto from(Coordinates coordinates) {
         return CoordianatesDto.builder()
-                .id(coordinates.getId())
-                .x(coordinates.getX())
-                .y(coordinates.getY())
-                .build();
+            .id(coordinates.getId())
+            .x(coordinates.getX())
+            .y(coordinates.getY())
+            .build();
     }
 }

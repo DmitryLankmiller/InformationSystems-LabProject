@@ -9,16 +9,16 @@
 // @Provider
 // public class InternalErrorMapper implements ExceptionMapper<Exception> {
 
-//     @Override
-//     public Response toResponse(Exception exception) {
-//         ErrorDto dto = ErrorDto.builder()
-//                 .code(ErrorCodes.INTERNAL_ERROR)
-//                 .message("Internal error")
-//                 .build();
+// @Override
+// public Response toResponse(Exception exception) {
+// ErrorDto dto = ErrorDto.builder()
+// .code(ErrorCodes.INTERNAL_ERROR)
+// .message("Internal error")
+// .build();
 
-//         return Response.status(Status.INTERNAL_SERVER_ERROR)
-//                 .entity(dto)
-//                 .build();
-//     }
+// return Response.status(Status.INTERNAL_SERVER_ERROR)
+// .entity(dto)
+// .build();
+// }
 
 // }

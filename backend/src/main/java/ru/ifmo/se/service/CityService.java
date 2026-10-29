@@ -45,18 +45,18 @@ public class CityService {
         }
 
         City city = City.builder()
-                .name(dto.getName())
-                .coordinates(coordinates)
-                .area(dto.getArea())
-                .population(dto.getPopulation())
-                .establishmentDate(dto.getEstablishmentDate())
-                .capital(dto.getCapital())
-                .metersAboveSeaLevel(dto.getMetersAboveSeaLevel())
-                .telephoneCode(dto.getTelephoneCode())
-                .climate(dto.getClimate())
-                .standardOfLiving(dto.getStandardOfLiving())
-                .governor(governor)
-                .build();
+            .name(dto.getName())
+            .coordinates(coordinates)
+            .area(dto.getArea())
+            .population(dto.getPopulation())
+            .establishmentDate(dto.getEstablishmentDate())
+            .capital(dto.getCapital())
+            .metersAboveSeaLevel(dto.getMetersAboveSeaLevel())
+            .telephoneCode(dto.getTelephoneCode())
+            .climate(dto.getClimate())
+            .standardOfLiving(dto.getStandardOfLiving())
+            .governor(governor)
+            .build();
 
         city = repository.insert(city);
 
@@ -147,12 +147,13 @@ public class CityService {
     }
 
     private String prepareFilterParam(String filter) {
-        return filter == null ? "%"
-                : "%" + filter
-                        .replace("!", "!!")
-                        .replace("%", "!%")
-                        .replace("_", "!_")
-                        + "%";
+        return filter == null
+            ? "%"
+            : "%" + filter
+                .replace("!", "!!")
+                .replace("%", "!%")
+                .replace("_", "!_")
+                + "%";
     }
 
     private String prepareSortField(String fieldName) {
@@ -176,13 +177,13 @@ public class CityService {
                 }
 
                 switch (direction) {
-                    case "asc":
+                    case "asc" :
                         sorts.add(Sort.asc(prepareSortField(fieldName)));
                         break;
-                    case "desc":
+                    case "desc" :
                         sorts.add(Sort.desc(prepareSortField(fieldName)));
                         break;
-                    default:
+                    default :
                         continue;
                 }
             }
@@ -194,26 +195,26 @@ public class CityService {
     }
 
     public PageResponse<City> getCities(
-            int page, int size,
-            String nameFilter, String governorNameFilter,
-            String sort) {
+        int page, int size,
+        String nameFilter, String governorNameFilter,
+        String sort) {
 
         PageRequest pageRequest = PageRequest.ofPage(page, size, true);
 
         Page<City> cities = repository.findCities(
-                prepareFilterParam(nameFilter),
-                prepareFilterParam(governorNameFilter),
-                prepareOrder(sort),
-                pageRequest);
+            prepareFilterParam(nameFilter),
+            prepareFilterParam(governorNameFilter),
+            prepareOrder(sort),
+            pageRequest);
 
         return PageResponse.<City>builder()
-                .page(page)
-                .size(size)
-                .hasNext(cities.hasNext())
-                .totalPages(cities.totalPages())
-                .totalElements(cities.totalElements())
-                .content(cities.content())
-                .build();
+            .page(page)
+            .size(size)
+            .hasNext(cities.hasNext())
+            .totalPages(cities.totalPages())
+            .totalElements(cities.totalElements())
+            .content(cities.content())
+            .build();
     }
 
 }

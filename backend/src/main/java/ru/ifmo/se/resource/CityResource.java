@@ -40,8 +40,8 @@ public class CityResource {
         City city = service.getCityById(id);
 
         return Response.ok()
-                .entity(CityDto.from(city))
-                .build();
+            .entity(CityDto.from(city))
+            .build();
     }
 
     @POST
@@ -49,12 +49,12 @@ public class CityResource {
         City city = service.createCity(dto);
 
         URI uri = uriInfo.getAbsolutePathBuilder()
-                .path(Long.toString(city.getId()))
-                .build();
+            .path(Long.toString(city.getId()))
+            .build();
 
         return Response.created(uri)
-                .entity(CityDto.from(city))
-                .build();
+            .entity(CityDto.from(city))
+            .build();
     }
 
     @DELETE
@@ -62,7 +62,7 @@ public class CityResource {
     public Response deleteCityById(@PathParam("id") long id) {
         if (service.deleteCityById(id)) {
             return Response.noContent()
-                    .build();
+                .build();
         }
 
         throw new NothingToDeleteException();
@@ -74,33 +74,33 @@ public class CityResource {
         City city = service.updateCityById(id, dto);
 
         return Response.ok()
-                .entity(CityDto.from(city))
-                .build();
+            .entity(CityDto.from(city))
+            .build();
     }
 
     @GET
     public Response getCities(
-            @QueryParam("page") @DefaultValue("1") @Positive @Max(value = 1_000_000) int page,
-            @QueryParam("size") @DefaultValue("20") @Positive @Max(value = 1000) int size,
-            @QueryParam("name") String nameFilter, @QueryParam("governorName") String governorNameFilter,
-            @QueryParam("sort") String sort) {
+        @QueryParam("page") @DefaultValue("1") @Positive @Max(value = 1_000_000) int page,
+        @QueryParam("size") @DefaultValue("20") @Positive @Max(value = 1000) int size,
+        @QueryParam("name") String nameFilter, @QueryParam("governorName") String governorNameFilter,
+        @QueryParam("sort") String sort) {
 
         PageResponse<City> citiesPage = service.getCities(page, size, nameFilter, governorNameFilter, sort);
 
         List<CityDto> dtos = citiesPage.getContent().stream().map(CityDto::from).toList();
 
         PageResponse<CityDto> response = PageResponse.<CityDto>builder()
-                .page(citiesPage.getPage())
-                .size(citiesPage.getSize())
-                .hasNext(citiesPage.isHasNext())
-                .totalPages(citiesPage.getTotalPages())
-                .totalElements(citiesPage.getTotalElements())
-                .content(dtos)
-                .build();
+            .page(citiesPage.getPage())
+            .size(citiesPage.getSize())
+            .hasNext(citiesPage.isHasNext())
+            .totalPages(citiesPage.getTotalPages())
+            .totalElements(citiesPage.getTotalElements())
+            .content(dtos)
+            .build();
 
         return Response.ok()
-                .entity(response)
-                .build();
+            .entity(response)
+            .build();
     }
 
 }

@@ -15,6 +15,6 @@ public interface CityRepository extends CrudRepository<City, Long> {
 
     @Query("WHERE name LIKE :namePattern ESCAPE '!' AND governor.name LIKE :governorNamePattern ESCAPE '!'")
     Page<City> findCities(@Param("namePattern") String namePattern,
-            @Param("governorNamePattern") String governorNamePattern,
-            Order<City> order, PageRequest pageRequest);
+        @Param("governorNamePattern") String governorNamePattern,
+        Order<City> order, PageRequest pageRequest);
 }

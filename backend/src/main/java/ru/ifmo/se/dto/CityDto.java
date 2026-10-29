@@ -25,19 +25,19 @@ public class CityDto {
 
     public static CityDto from(City city) {
         return CityDto.builder()
-                .id(city.getId())
-                .name(city.getName())
-                .coordinates(CoordianatesDto.from(city.getCoordinates()))
-                .creationDate(city.getCreationDate())
-                .area(city.getArea())
-                .population(city.getPopulation())
-                .establishmentDate(city.getEstablishmentDate())
-                .capital(city.getCapital())
-                .metersAboveSeaLevel(city.getMetersAboveSeaLevel())
-                .telephoneCode(city.getTelephoneCode())
-                .climate(city.getClimate())
-                .standardOfLiving(city.getStandardOfLiving())
-                .governor(HumanDto.from(city.getGovernor()))
-                .build();
+            .id(city.getId())
+            .name(city.getName())
+            .coordinates(CoordianatesDto.from(city.getCoordinates()))
+            .creationDate(city.getCreationDate())
+            .area(city.getArea())
+            .population(city.getPopulation())
+            .establishmentDate(city.getEstablishmentDate())
+            .capital(city.getCapital())
+            .metersAboveSeaLevel(city.getMetersAboveSeaLevel())
+            .telephoneCode(city.getTelephoneCode())
+            .climate(city.getClimate())
+            .standardOfLiving(city.getStandardOfLiving())
+            .governor(HumanDto.from(city.getGovernor()))
+            .build();
     }
 }

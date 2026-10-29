@@ -53,6 +53,19 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>3.10.4</version>
+                <configuration>
+                    <java>
+                        <eclipse>
+                            <version>4.35</version>
+                            <file>${project.basedir}/../.vscode/java-formatter.xml</file>
+                        </eclipse>
+                    </java>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

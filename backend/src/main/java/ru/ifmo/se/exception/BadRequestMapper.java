@@ -13,13 +13,13 @@ public class BadRequestMapper implements ExceptionMapper<BadRequestException> {
     @Override
     public Response toResponse(BadRequestException exception) {
         ErrorDto dto = ErrorDto.builder()
-                .code(ErrorCodes.PROCESSING_ERROR)
-                .message("Bad request")
-                .build();
+            .code(ErrorCodes.PROCESSING_ERROR)
+            .message("Bad request")
+            .build();
 
         return Response.status(Status.BAD_REQUEST)
-                .entity(dto)
-                .build();
+            .entity(dto)
+            .build();
     }
 
 }

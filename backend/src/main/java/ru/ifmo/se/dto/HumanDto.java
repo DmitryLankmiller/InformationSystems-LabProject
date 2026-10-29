@@ -13,9 +13,9 @@ public class HumanDto {
 
     public static HumanDto from(Human human) {
         return HumanDto.builder()
-                .id(human.getId())
-                .name(human.getName())
-                .birthday(human.getBirthday())
-                .build();
+            .id(human.getId())
+            .name(human.getName())
+            .birthday(human.getBirthday())
+            .build();
     }
 }

@@ -12,13 +12,13 @@ public class NothingToDeleteMapper implements ExceptionMapper<NothingToDeleteExc
     @Override
     public Response toResponse(NothingToDeleteException exception) {
         ErrorDto dto = ErrorDto.builder()
-                .code(ErrorCodes.NO_ELEMENT)
-                .message("No element for deletion")
-                .build();
+            .code(ErrorCodes.NO_ELEMENT)
+            .message("No element for deletion")
+            .build();
 
         return Response.status(Status.CONFLICT)
-                .entity(dto)
-                .build();
+            .entity(dto)
+            .build();
     }
 
 }

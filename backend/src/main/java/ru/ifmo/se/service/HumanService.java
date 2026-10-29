@@ -23,9 +23,9 @@ public class HumanService {
     @Transactional
     public Human createHuman(CreateHumanDto dto) {
         Human human = Human.builder()
-                .name(dto.getName())
-                .birthday(dto.getBirthday())
-                .build();
+            .name(dto.getName())
+            .birthday(dto.getBirthday())
+            .build();
 
         human = repository.insert(human);
         return human;

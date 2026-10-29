@@ -22,9 +22,9 @@ public class CoordinatesService {
     @Transactional
     public Coordinates createCoordinates(CreateCoordinatesDto dto) {
         Coordinates coordinates = Coordinates.builder()
-                .x(dto.getX())
-                .y(dto.getY())
-                .build();
+            .x(dto.getX())
+            .y(dto.getY())
+            .build();
 
         coordinates = repository.insert(coordinates);
         return coordinates;

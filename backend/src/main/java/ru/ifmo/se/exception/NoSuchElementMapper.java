@@ -14,13 +14,13 @@ public class NoSuchElementMapper implements ExceptionMapper<NoSuchElementExcepti
     @Override
     public Response toResponse(NoSuchElementException exception) {
         ErrorDto dto = ErrorDto.builder()
-                .code(ErrorCodes.NO_ELEMENT)
-                .message("Element is not found")
-                .build();
+            .code(ErrorCodes.NO_ELEMENT)
+            .message("Element is not found")
+            .build();
 
         return Response.status(Status.NOT_FOUND)
-                .entity(dto)
-                .build();
+            .entity(dto)
+            .build();
     }
 
 }
