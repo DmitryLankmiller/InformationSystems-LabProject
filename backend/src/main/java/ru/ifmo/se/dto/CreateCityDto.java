@@ -1,5 +1,7 @@
 package ru.ifmo.se.dto;
 
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
@@ -11,6 +13,7 @@ import ru.ifmo.se.model.Climate;
 import ru.ifmo.se.model.StandardOfLiving;
 
 @Data
+@Schema 
 public class CreateCityDto {
     @NotNull
     @NotBlank

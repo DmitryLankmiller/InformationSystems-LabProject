@@ -1,5 +1,8 @@
 package ru.ifmo.se.dto;
 
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+
 import lombok.Builder;
 import lombok.Data;
 import ru.ifmo.se.model.City;
@@ -8,13 +11,16 @@ import ru.ifmo.se.model.StandardOfLiving;
 
 @Data
 @Builder
+@Schema
 public class CityDto {
     private long id;
     private String name;
     private CoordianatesDto coordinates;
+    @Schema (type = SchemaType.STRING)
     private java.time.LocalDateTime creationDate;
     private float area;
     private int population;
+    @Schema (type = SchemaType.STRING)
     private java.time.ZonedDateTime establishmentDate;
     private Boolean capital;
     private Double metersAboveSeaLevel;

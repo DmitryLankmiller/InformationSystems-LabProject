@@ -3,6 +3,12 @@ package ru.ifmo.se.resource;
 import java.net.URI;
 import java.util.List;
 
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.media.SchemaProperty;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -15,8 +21,10 @@ import jakarta.ws.rs.PATCH;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import ru.ifmo.se.dto.CityDto;
@@ -29,6 +37,7 @@ import ru.ifmo.se.service.CityService;
 
 @Path("cities")
 @RequestScoped
+@Produces(MediaType.APPLICATION_JSON)
 public class CityResource {
 
     @Inject
@@ -36,6 +45,14 @@ public class CityResource {
 
     @GET
     @Path("{id}")
+    @APIResponse(
+        responseCode = "200",
+        description = "Get city by id",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CityDto.class)
+        )
+    )
     public Response getCityById(@PathParam("id") long id) {
         City city = service.getCityById(id);
 
@@ -45,6 +62,14 @@ public class CityResource {
     }
 
     @POST
+    @APIResponse(
+        responseCode = "201",
+        description = "Create city",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CityDto.class)
+        )
+    )
     public Response createCity(@Valid CreateCityDto dto, @Context UriInfo uriInfo) {
         City city = service.createCity(dto);
 
@@ -59,6 +84,10 @@ public class CityResource {
 
     @DELETE
     @Path("{id}")
+    @APIResponse(
+        responseCode = "204",
+        description = "Delete city by id"
+    )
     public Response deleteCityById(@PathParam("id") long id) {
         if (service.deleteCityById(id)) {
             return Response.noContent()
@@ -70,6 +99,14 @@ public class CityResource {
 
     @PATCH
     @Path("{id}")
+    @APIResponse(
+        responseCode = "200",
+        description = "Update city by id",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CityDto.class)
+        )
+    )
     public Response updateCityById(@PathParam("id") long id, @Valid UpdateCityDto dto) {
         City city = service.updateCityById(id, dto);
 
@@ -79,6 +116,21 @@ public class CityResource {
     }
 
     @GET
+    @APIResponse(
+        responseCode = "200",
+        description = "Get page of cities",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(
+                implementation = PageResponse.class,
+                properties = @SchemaProperty(
+                    name = "content",
+                    type = SchemaType.ARRAY,
+                    implementation = CityDto.class
+                )
+            )
+        )
+    )
     public Response getCities(
         @QueryParam("page") @DefaultValue("1") @Positive @Max(value = 1_000_000) int page,
         @QueryParam("size") @DefaultValue("20") @Positive @Max(value = 1000) int size,
