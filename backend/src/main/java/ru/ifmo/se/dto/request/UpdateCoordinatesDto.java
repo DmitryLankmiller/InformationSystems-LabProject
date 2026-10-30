@@ -1,4 +1,4 @@
-package ru.ifmo.se.dto;
+package ru.ifmo.se.dto.request;
 
 import jakarta.validation.constraints.Max;
 import lombok.Data;

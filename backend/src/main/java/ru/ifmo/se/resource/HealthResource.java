@@ -6,7 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
-import ru.ifmo.se.dto.StatusObject;
+import ru.ifmo.se.dto.response.StatusObject;
 
 @Path("health")
 @RequestScoped

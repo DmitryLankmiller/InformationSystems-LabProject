@@ -1,4 +1,4 @@
-package ru.ifmo.se.dto;
+package ru.ifmo.se.dto.response;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @Builder
-@Schema 
+@Schema
 public class PageResponse<T> {
     int page;
     int size;

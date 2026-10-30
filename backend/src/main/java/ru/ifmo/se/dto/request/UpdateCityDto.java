@@ -1,45 +1,46 @@
-package ru.ifmo.se.dto;
+package ru.ifmo.se.dto.request;
 
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import ru.ifmo.se.model.Climate;
 import ru.ifmo.se.model.StandardOfLiving;
+import ru.ifmo.se.utils.SkipPatch;
 
 @Data
-@Schema 
-public class CreateCityDto {
-    @NotNull
-    @NotBlank
+@Schema
+public class UpdateCityDto {
     private String name;
     @Valid
-    @NotNull
-    private CreateCoordinatesDto coordinates;
+    @SkipPatch
+    private UpdateCoordinatesDto coordinates;
     @Positive
-    private float area;
+    private Float area;
     @Positive
-    private int population;
+    private Integer population;
     private java.time.ZonedDateTime establishmentDate;
-    @NotNull
+    private Boolean annulateEstablishmentDate;
     private Boolean capital;
     private Double metersAboveSeaLevel;
+    private Boolean annulateMetersAboveSeaLevel;
     @Positive
     @Max(value = 100_000)
     private Long telephoneCode;
+    private Boolean annulateTelephoneCode;
     private Climate climate;
+    private Boolean annulateClimate;
     private StandardOfLiving standardOfLiving;
-    @Valid
-    private CreateHumanDto governor;
-    private Integer governorId;
+    private Boolean annulateStandardOfLiving;
 
     @AssertTrue
-    private boolean isGovernorProvided() {
-        return governor == null && governorId != null || governor != null && governorId == null;
+    private boolean isNotBlankFieldsValid() {
+        if (name != null) {
+            return !name.isBlank();
+        }
+        return true;
     }
 }

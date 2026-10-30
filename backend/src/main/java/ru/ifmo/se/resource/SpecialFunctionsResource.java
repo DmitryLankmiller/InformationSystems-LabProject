@@ -16,14 +16,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import ru.ifmo.se.dto.CityDto;
+import ru.ifmo.se.dto.response.CityDto;
 import ru.ifmo.se.model.City;
 import ru.ifmo.se.service.SpecialFunctionsService;
 
 @Path("cities/manage")
 @RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
-public class SpecailFunctionsResource {
+public class SpecialFunctionsResource {
     @Inject
     private SpecialFunctionsService service;
 

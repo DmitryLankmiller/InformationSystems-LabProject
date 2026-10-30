@@ -4,17 +4,19 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
-import ru.ifmo.se.dto.CreateHumanDto;
-import ru.ifmo.se.dto.UpdateHumanDto;
+import ru.ifmo.se.dto.request.CreateHumanDto;
+import ru.ifmo.se.dto.request.UpdateHumanDto;
 import ru.ifmo.se.model.Human;
 import ru.ifmo.se.repository.HumanRepository;
+import ru.ifmo.se.utils.PatchManager;
 
 @Named
 @ApplicationScoped
 public class HumanService {
-
     @Inject
     HumanRepository repository;
+    @Inject
+    private PatchManager patchManager;
 
     public Human getHumanById(int id) {
         return repository.findById(id).orElseThrow();
@@ -35,17 +37,7 @@ public class HumanService {
     public Human updateHumanById(int id, UpdateHumanDto dto) {
         Human human = repository.findById(id).orElseThrow();
 
-        if (dto.getName() != null) {
-            human.setName(dto.getName());
-        }
-
-        if (dto.getAnnulateBirthday() != null && dto.getAnnulateBirthday()) {
-            human.setBirthday(null);
-        } else {
-            if (dto.getBirthday() != null) {
-                human.setBirthday(dto.getBirthday());
-            }
-        }
+        patchManager.applyPatch(dto, human);
 
         human = repository.update(human);
 

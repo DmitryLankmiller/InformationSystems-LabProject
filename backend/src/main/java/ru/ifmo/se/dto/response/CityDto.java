@@ -1,4 +1,4 @@
-package ru.ifmo.se.dto;
+package ru.ifmo.se.dto.response;
 
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -15,7 +15,7 @@ import ru.ifmo.se.model.StandardOfLiving;
 public class CityDto {
     private long id;
     private String name;
-    private CoordianatesDto coordinates;
+    private CoordinatesDto coordinates;
     @Schema (type = SchemaType.STRING)
     private java.time.LocalDateTime creationDate;
     private float area;
@@ -33,7 +33,7 @@ public class CityDto {
         return CityDto.builder()
             .id(city.getId())
             .name(city.getName())
-            .coordinates(CoordianatesDto.from(city.getCoordinates()))
+            .coordinates(CoordinatesDto.from(city.getCoordinates()))
             .creationDate(city.getCreationDate())
             .area(city.getArea())
             .population(city.getPopulation())

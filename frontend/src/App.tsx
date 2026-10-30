@@ -6,6 +6,9 @@ function App() {
 
 	return (
 		<>
+			<header>
+				Информационные системы. Лабораторная работа 1. Вариант 33312
+			</header>
 			<button onClick={() => setCount(count + 1)}>Count is {count}</button>
 		</>
 	);

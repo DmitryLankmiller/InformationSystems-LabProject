@@ -1,4 +1,4 @@
-package ru.ifmo.se.dto;
+package ru.ifmo.se.dto.response;
 
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;

@@ -4,21 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.data.Order;
-import jakarta.data.Sort;
-import jakarta.data.page.Page;
-import jakarta.data.page.PageRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
-import ru.ifmo.se.dto.CreateCityDto;
-import ru.ifmo.se.dto.PageResponse;
-import ru.ifmo.se.dto.UpdateCityDto;
+import ru.ifmo.se.dto.request.CreateCityDto;
+import ru.ifmo.se.dto.request.UpdateCityDto;
+import ru.ifmo.se.dto.response.PageResponse;
 import ru.ifmo.se.model.City;
 import ru.ifmo.se.model.Coordinates;
 import ru.ifmo.se.model.Human;
 import ru.ifmo.se.repository.CityRepository;
+import ru.ifmo.se.repository.search.CitySearchRepository;
+import ru.ifmo.se.repository.search.CitySortField;
+import ru.ifmo.se.repository.search.SearchPage;
+import ru.ifmo.se.repository.search.SortRule;
+import ru.ifmo.se.utils.PatchManager;
 
 @Named
 @ApplicationScoped
@@ -31,6 +32,10 @@ public class CityService {
     private CoordinatesService coordinatesService;
     @Inject
     private HumanService humanService;
+    @Inject
+    private CitySearchRepository searchRepository;
+    @Inject
+    private PatchManager patchManager;
 
     @Transactional
     public City createCity(CreateCityDto dto) {
@@ -81,65 +86,11 @@ public class CityService {
     public City updateCityById(long id, UpdateCityDto dto) {
         City city = repository.findById(id).orElseThrow();
 
-        if (dto.getName() != null) {
-            city.setName(dto.getName());
-        }
-
         if (dto.getCoordinates() != null) {
             coordinatesService.updateCoordinatesById(city.getCoordinates().getId(), dto.getCoordinates());
         }
 
-        if (dto.getArea() != null) {
-            city.setArea(dto.getArea());
-        }
-
-        if (dto.getPopulation() != null) {
-            city.setPopulation(dto.getPopulation());
-        }
-
-        if (dto.getAnnulateEstablishmentDate() != null && dto.getAnnulateEstablishmentDate()) {
-            city.setEstablishmentDate(null);
-        } else {
-            if (dto.getEstablishmentDate() != null) {
-                city.setEstablishmentDate(dto.getEstablishmentDate());
-            }
-        }
-
-        if (dto.getCapital() != null) {
-            city.setCapital(dto.getCapital());
-        }
-
-        if (dto.getAnnulateMetersAboveSeaLevel() != null && dto.getAnnulateMetersAboveSeaLevel()) {
-            city.setMetersAboveSeaLevel(null);
-        } else {
-            if (dto.getMetersAboveSeaLevel() != null) {
-                city.setMetersAboveSeaLevel(dto.getMetersAboveSeaLevel());
-            }
-        }
-
-        if (dto.getAnnulateTelephoneCode() != null && dto.getAnnulateTelephoneCode()) {
-            city.setTelephoneCode(null);
-        } else {
-            if (dto.getTelephoneCode() != null) {
-                city.setTelephoneCode(dto.getTelephoneCode());
-            }
-        }
-
-        if (dto.getAnnulateClimate() != null && dto.getAnnulateClimate()) {
-            city.setClimate(null);
-        } else {
-            if (dto.getClimate() != null) {
-                city.setClimate(dto.getClimate());
-            }
-        }
-
-        if (dto.getAnnulateStandardOfLiving() != null && dto.getAnnulateStandardOfLiving()) {
-            city.setStandardOfLiving(null);
-        } else {
-            if (dto.getStandardOfLiving() != null) {
-                city.setStandardOfLiving(dto.getStandardOfLiving());
-            }
-        }
+        patchManager.applyPatch(dto, city);
 
         city = repository.update(city);
 
@@ -156,42 +107,44 @@ public class CityService {
                 + "%";
     }
 
-    private String prepareSortField(String fieldName) {
-        return fieldName.equals("governorName") ? "governor.name" : fieldName;
+    private CitySortField prepareSortField(String fieldName) {
+        if ("governorName".equals(fieldName)) {
+            return CitySortField.GOVERNOR_NAME;
+        }
+        if ("name".equals(fieldName)) {
+            return CitySortField.NAME;
+        }
+        throw new IllegalArgumentException("wrong sort field");
     }
 
-    private Order<City> prepareOrder(String sort) {
-        List<Sort<? super City>> sorts = new ArrayList<>();
+    private List<SortRule> prepareOrder(String sort) {
+        List<SortRule> sorting = new ArrayList<>();
 
-        if (sort != null) {
-            for (String rule : sort.split(",")) {
-                var rules = rule.split(":");
-                if (rules.length != 2) {
-                    continue;
-                }
-
-                String fieldName = rules[0], direction = rules[1];
-
-                if (!ORDER_FIELDS.contains(fieldName)) {
-                    continue;
-                }
-
-                switch (direction) {
-                    case "asc" :
-                        sorts.add(Sort.asc(prepareSortField(fieldName)));
-                        break;
-                    case "desc" :
-                        sorts.add(Sort.desc(prepareSortField(fieldName)));
-                        break;
-                    default :
-                        continue;
-                }
-            }
+        if (sort == null) {
+            return sorting;
         }
 
-        // sorts.add(Sort.asc("id"));
+        for (String rule : sort.split(",")) {
+            var rules = rule.split(":");
+            if (rules.length != 2) {
+                continue;
+            }
 
-        return Order.by(sorts);
+            String fieldName = rules[0], direction = rules[1];
+
+            if (!ORDER_FIELDS.contains(fieldName)) {
+                continue;
+            }
+
+            if (!"asc".equals(direction) && !"desc".equals(direction)) {
+                continue;
+            }
+
+            sorting.add(new SortRule(prepareSortField(fieldName), "asc".equals(direction)));
+        }
+
+        return sorting;
+
     }
 
     public PageResponse<City> getCities(
@@ -199,13 +152,12 @@ public class CityService {
         String nameFilter, String governorNameFilter,
         String sort) {
 
-        PageRequest pageRequest = PageRequest.ofPage(page, size, true);
-
-        Page<City> cities = repository.findCities(
+        SearchPage<City> cities = searchRepository.search(
             prepareFilterParam(nameFilter),
             prepareFilterParam(governorNameFilter),
             prepareOrder(sort),
-            pageRequest);
+            page,
+            size);
 
         return PageResponse.<City>builder()
             .page(page)

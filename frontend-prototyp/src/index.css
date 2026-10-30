@@ -1,0 +1,114 @@
+:root {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	color: #202124;
+	background: #fff;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-size: 16px;
+	line-height: 1.5;
+	--text: #202124;
+	--muted: #65676d;
+	--line: #e6e6e9;
+	--surface: #f7f7f8;
+	--accent: #3d5bd9;
+}
+
+* {
+	box-sizing: border-box;
+}
+body {
+	margin: 0;
+	min-width: 360px;
+}
+body:has(dialog[open]) {
+	overflow: hidden;
+}
+button,
+input,
+select {
+	font: inherit;
+}
+button,
+a,
+input,
+select {
+	-webkit-tap-highlight-color: transparent;
+}
+button,
+a {
+	touch-action: manipulation;
+}
+button {
+	cursor: pointer;
+}
+button:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+button,
+input,
+select {
+	transition:
+		border-color 0.15s,
+		background 0.15s,
+		box-shadow 0.15s;
+}
+button:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+	outline: 3px solid #8b9fec;
+	outline-offset: 3px;
+}
+input:focus,
+select:focus {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px #3d5bd91a;
+}
+a {
+	color: inherit;
+}
+h1,
+h2,
+h3,
+p {
+	margin: 0;
+}
+input,
+select {
+	border: 1px solid #d3d4d9;
+	border-radius: 6px;
+	padding: 10px 12px;
+	color: var(--text);
+	background: #fff;
+	width: 100%;
+	min-width: 0;
+	min-height: 44px;
+}
+input::placeholder {
+	color: #777a82;
+}
+fieldset {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	min-width: 0;
+}
+svg {
+	flex-shrink: 0;
+	vertical-align: middle;
+}
+::selection {
+	background: #dfe6ff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		transition: none !important;
+	}
+}

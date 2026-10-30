@@ -1,0 +1,863 @@
+# Редактируемый контракт текущего API. Не заменять напрямую выводом /openapi.
+openapi: 3.1.0
+info:
+  title: City Manager API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Cities
+  - name: SpecialFunctions
+  - name: Health
+  - name: Hello
+paths:
+  /api/cities:
+    get:
+      tags:
+        - Cities
+      operationId: getCities
+      summary: Получить страницу городов
+      description: "Поиск по подстроке с учётом регистра; фильтры объединяются через AND."
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: "Нумерация с 1."
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 1000000
+            default: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 1000
+            default: 20
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+          example: Москва
+        - name: governorName
+          in: query
+          required: false
+          schema:
+            type: string
+          example: Иван
+        - name: sort
+          in: query
+          required: false
+          description: "field:asc|desc через запятую; поля: name, governorName. Приоритет слева направо; неизвестные правила игнорируются."
+          schema:
+            type: string
+          example: name:asc
+      responses:
+        '200':
+          description: "Страница городов."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityPageResponse'
+        '404':
+          $ref: '#/components/responses/InvalidParameter'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    post:
+      tags:
+        - Cities
+      operationId: createCity
+      summary: Создать город
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCityDto'
+      responses:
+        '201':
+          description: "Созданный город."
+          headers:
+            Location:
+              description: "Абсолютный URI созданного города."
+              schema:
+                type: string
+                format: uri
+              example: http://localhost:8080/api/cities/123
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/cities/{id}:
+    parameters:
+      - $ref: '#/components/parameters/CityId'
+    get:
+      tags:
+        - Cities
+      operationId: getCityById
+      summary: Получить город по id
+      responses:
+        '200':
+          description: "Найденный город."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityDto'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    patch:
+      tags:
+        - Cities
+      operationId: updateCityById
+      summary: Частично обновить город
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCityDto'
+      responses:
+        '200':
+          description: "Город после обновления."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityDto'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '415':
+          $ref: '#/components/responses/UnsupportedMediaType'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+    delete:
+      tags:
+        - Cities
+      operationId: deleteCityById
+      summary: Удалить город
+      responses:
+        '204':
+          description: "Удалены город и координаты; губернатор сохранён."
+        '404':
+          $ref: '#/components/responses/InvalidParameter'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/cities/manage/min-telephone-code:
+    get:
+      tags:
+        - SpecialFunctions
+      operationId: minTelephoneCode
+      summary: Получить город с минимальным телефонным кодом
+      description: "При равенстве кодов выбирается любой город; NULL-коды идут последними."
+      responses:
+        '200':
+          description: "Один город с минимальным telephoneCode."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CityDto'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/cities/manage/count-by-sea-level:
+    get:
+      tags:
+        - SpecialFunctions
+      operationId: countBySeaLevel
+      summary: Посчитать города с заданной высотой
+      description: "Точное совпадение высоты; NULL не учитывается."
+      parameters:
+        - $ref: '#/components/parameters/SeaLevel'
+      responses:
+        '200':
+          description: "Количество городов."
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+                minimum: 0
+        '404':
+          $ref: '#/components/responses/InvalidParameter'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/cities/manage/cities-higher:
+    get:
+      tags:
+        - SpecialFunctions
+      operationId: citiesHigher
+      summary: Получить города выше заданной высоты
+      description: "Высота строго больше заданной; NULL не учитывается."
+      parameters:
+        - $ref: '#/components/parameters/SeaLevel'
+      responses:
+        '200':
+          description: "Массив городов; пустой при отсутствии совпадений."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CityDto'
+        '404':
+          $ref: '#/components/responses/InvalidParameter'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/cities/manage/calculate-dist-to-smallest:
+    get:
+      tags:
+        - SpecialFunctions
+      operationId: calculateDistToSmallest
+      summary: Вычислить расстояние до города с минимальной площадью
+      description: "Расстояние от (0, 0, 0) до города с минимальной площадью. Высота NULL считается нулевой."
+      responses:
+        '200':
+          description: "Евклидово расстояние."
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+                minimum: 0
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/cities/manage/calculate-dist-to-biggest:
+    get:
+      tags:
+        - SpecialFunctions
+      operationId: calculateDistToBiggest
+      summary: Вычислить расстояние до города с максимальной площадью
+      description: "Расстояние от (x0, y0, z0) до города с максимальной площадью. Высота NULL считается нулевой."
+      parameters:
+        - name: x0
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+            default: 0
+        - name: y0
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+            default: 0
+        - name: z0
+          in: query
+          required: false
+          schema:
+            type: number
+            format: double
+            default: 0
+      responses:
+        '200':
+          description: "Евклидово расстояние."
+          content:
+            application/json:
+              schema:
+                type: number
+                format: double
+                minimum: 0
+        '404':
+          $ref: '#/components/responses/InvalidParameter'
+        '406':
+          $ref: '#/components/responses/NotAcceptable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/health/check:
+    get:
+      tags:
+        - Health
+      operationId: healthCheck
+      summary: Проверить доступность приложения
+      responses:
+        '200':
+          description: "Приложение отвечает."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusObject'
+              example:
+                status: ok
+                message: System is health
+  /api/health/db/check:
+    get:
+      tags:
+        - Health
+      operationId: dbCheck
+      summary: Проверить соединение с БД
+      description: "Проверяет соединение с БД; результат — в поле status."
+      responses:
+        '200':
+          description: "Результат проверки соединения."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusObject'
+              examples:
+                connected:
+                  value:
+                    status: ok
+                    message: Connection to DB is successful
+                unavailable:
+                  value:
+                    status: not ok
+                    message: Описание ошибки подключения к БД
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api/hello:
+    get:
+      tags:
+        - Hello
+      operationId: helloWorld
+      summary: Получить приветствие
+      responses:
+        '200':
+          description: "Приветствие."
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: Hello, world!
+components:
+  schemas:
+    Climate:
+      type: string
+      enum:
+        - RAIN_FOREST
+        - HUMIDSUBTROPICAL
+        - SUBARCTIC
+    StandardOfLiving:
+      type: string
+      enum:
+        - HIGH
+        - MEDIUM
+        - VERY_LOW
+        - NIGHTMARE
+    CoordinatesDto:
+      type: object
+      required:
+        - id
+        - x
+        - y
+      properties:
+        id:
+          type: integer
+          format: int32
+        x:
+          type: integer
+          format: int32
+          maximum: 434
+        y:
+          type: number
+          format: float
+    HumanDto:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          minLength: 1
+        birthday:
+          type:
+            - string
+            - 'null'
+          description: "Дата и время с часовым поясом."
+          example: 1990-01-01T00:00:00+03:00[Europe/Moscow]
+    CityDto:
+      type: object
+      required:
+        - id
+        - name
+        - coordinates
+        - creationDate
+        - area
+        - population
+        - capital
+        - governor
+      properties:
+        id:
+          type: integer
+          format: int64
+          minimum: 1
+        name:
+          type: string
+          minLength: 1
+        coordinates:
+          $ref: '#/components/schemas/CoordinatesDto'
+        creationDate:
+          type: string
+          description: "Дата и время без часового пояса."
+          example: '2026-09-29T21:52:45.526668'
+        area:
+          type: number
+          format: float
+          exclusiveMinimum: 0
+        population:
+          type: integer
+          format: int32
+          minimum: 1
+        establishmentDate:
+          type:
+            - string
+            - 'null'
+          description: "Дата и время с часовым поясом."
+          example: 1990-01-01T00:00:00+03:00[Europe/Moscow]
+        capital:
+          type: boolean
+        metersAboveSeaLevel:
+          type:
+            - number
+            - 'null'
+          format: double
+        telephoneCode:
+          type:
+            - integer
+            - 'null'
+          format: int64
+          minimum: 1
+          maximum: 100000
+        climate:
+          anyOf:
+            - $ref: '#/components/schemas/Climate'
+            - type: 'null'
+        standardOfLiving:
+          anyOf:
+            - $ref: '#/components/schemas/StandardOfLiving'
+            - type: 'null'
+        governor:
+          $ref: '#/components/schemas/HumanDto'
+      example:
+        area: 2561.0
+        capital: true
+        climate: HUMIDSUBTROPICAL
+        coordinates:
+          id: 1
+          x: 0
+          y: 0.0
+        creationDate: '2026-09-29T21:52:45.526668'
+        establishmentDate: 1147-04-11T00:00:00+02:30:17[Europe/Moscow]
+        governor:
+          birthday: 1990-01-01T00:00:00+03:00[Europe/Moscow]
+          id: 1
+          name: Василий Пупкин
+        id: 1
+        metersAboveSeaLevel: 186.0
+        name: Москва
+        population: 13300000
+        standardOfLiving: HIGH
+        telephoneCode: 495
+    CityPageResponse:
+      type: object
+      required:
+        - page
+        - size
+        - hasNext
+        - totalPages
+        - totalElements
+        - content
+      properties:
+        page:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1000000
+        size:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 1000
+        hasNext:
+          type: boolean
+        totalPages:
+          type: integer
+          format: int64
+          minimum: 0
+        totalElements:
+          type: integer
+          format: int64
+          minimum: 0
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/CityDto'
+      example:
+        page: 1
+        size: 20
+        hasNext: false
+        totalPages: 0
+        totalElements: 0
+        content: []
+    CreateCoordinatesDto:
+      type: object
+      description: "Пара (x, y) должна быть уникальной."
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: integer
+          format: int32
+          maximum: 434
+        y:
+          type: number
+          format: float
+    CreateHumanDto:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          example: Москва
+        birthday:
+          type:
+            - string
+            - 'null'
+          description: "Дата и время с часовым поясом."
+          example: 1990-01-01T00:00:00+03:00[Europe/Moscow]
+    CreateCityDto:
+      type: object
+      description: "governor создаёт нового губернатора, governorId выбирает существующего."
+      example:
+        name: Новый город
+        coordinates:
+          x: 123
+          y: 45.5
+        area: 12.5
+        population: 1500
+        capital: false
+        governor:
+          name: Иван Иванов
+          birthday: 1990-01-01T00:00:00+03:00[Europe/Moscow]
+      required:
+        - name
+        - coordinates
+        - area
+        - population
+        - capital
+      properties:
+        name:
+          type: string
+          minLength: 1
+          example: Москва
+        coordinates:
+          $ref: '#/components/schemas/CreateCoordinatesDto'
+        area:
+          type: number
+          format: float
+          exclusiveMinimum: 0
+        population:
+          type: integer
+          format: int32
+          minimum: 1
+        establishmentDate:
+          type:
+            - string
+            - 'null'
+          description: "Дата и время с часовым поясом."
+          example: 1990-01-01T00:00:00+03:00[Europe/Moscow]
+        capital:
+          type: boolean
+        metersAboveSeaLevel:
+          type:
+            - number
+            - 'null'
+          format: double
+        telephoneCode:
+          type:
+            - integer
+            - 'null'
+          format: int64
+          minimum: 1
+          maximum: 100000
+        climate:
+          anyOf:
+            - $ref: '#/components/schemas/Climate'
+            - type: 'null'
+        standardOfLiving:
+          anyOf:
+            - $ref: '#/components/schemas/StandardOfLiving'
+            - type: 'null'
+        governor:
+          anyOf:
+            - $ref: '#/components/schemas/CreateHumanDto'
+            - type: 'null'
+        governorId:
+          type:
+            - integer
+            - 'null'
+          format: int32
+    UpdateCoordinatesDto:
+      type: object
+      properties:
+        x:
+          type:
+            - integer
+            - 'null'
+          format: int32
+          maximum: 434
+        y:
+          type:
+            - number
+            - 'null'
+          format: float
+    UpdateCityDto:
+      type: object
+      description: "Отсутствующие и null-поля не изменяются. annulate-флаги очищают поля и имеют приоритет над новыми значениями."
+      example:
+        coordinates:
+          x: 100
+        annulateTelephoneCode: true
+      properties:
+        name:
+          type:
+            - string
+            - 'null'
+        coordinates:
+          anyOf:
+            - $ref: '#/components/schemas/UpdateCoordinatesDto'
+            - type: 'null'
+        area:
+          type:
+            - number
+            - 'null'
+          format: float
+          exclusiveMinimum: 0
+        population:
+          type:
+            - integer
+            - 'null'
+          format: int32
+          minimum: 1
+        establishmentDate:
+          type:
+            - string
+            - 'null'
+          description: "Дата и время с часовым поясом."
+          example: 1990-01-01T00:00:00+03:00[Europe/Moscow]
+        annulateEstablishmentDate:
+          type:
+            - boolean
+            - 'null'
+        capital:
+          type:
+            - boolean
+            - 'null'
+        metersAboveSeaLevel:
+          type:
+            - number
+            - 'null'
+          format: double
+        annulateMetersAboveSeaLevel:
+          type:
+            - boolean
+            - 'null'
+        telephoneCode:
+          type:
+            - integer
+            - 'null'
+          format: int64
+          minimum: 1
+          maximum: 100000
+        annulateTelephoneCode:
+          type:
+            - boolean
+            - 'null'
+        climate:
+          anyOf:
+            - $ref: '#/components/schemas/Climate'
+            - type: 'null'
+        annulateClimate:
+          type:
+            - boolean
+            - 'null'
+        standardOfLiving:
+          anyOf:
+            - $ref: '#/components/schemas/StandardOfLiving'
+            - type: 'null'
+        annulateStandardOfLiving:
+          type:
+            - boolean
+            - 'null'
+    ErrorCodes:
+      type: string
+      enum:
+        - NO_ELEMENT
+        - PROCESSING_ERROR
+        - CONSTRAINT_VIOLATION
+        - INTERNAL_ERROR
+    ErrorDetail:
+      type: object
+      required:
+        - field
+        - message
+      properties:
+        field:
+          type: string
+          description: "Путь к нарушенному ограничению."
+          example: createCity.arg0.coordinates.x
+        message:
+          type: string
+          example: must be less than or equal to 434
+    ErrorDto:
+      type: object
+      description: "details содержит нарушения валидации."
+      required:
+        - code
+        - message
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCodes'
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+    StatusObject:
+      type: object
+      description: "При HTTP 200 результат проверки определяется полем status."
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+            - not ok
+        message:
+          type:
+            - string
+            - 'null'
+  parameters:
+    CityId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    SeaLevel:
+      name: metersAboveSeaLevel
+      in: query
+      required: false
+      description: "Высота над уровнем моря."
+      schema:
+        type: number
+        format: double
+        default: 0
+  responses:
+    BadRequest:
+      description: "Некорректное тело запроса."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorDto'
+          example:
+            code: PROCESSING_ERROR
+            message: Failed to process the request
+    NotFound:
+      description: "Объект не найден."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorDto'
+          example:
+            code: NO_ELEMENT
+            message: Element is not found
+        text/html:
+          schema:
+            type: string
+    InvalidParameter:
+      description: "Некорректный числовой параметр."
+      content:
+        text/html:
+          schema:
+            type: string
+    NotAcceptable:
+      description: "Неподдерживаемый формат ответа."
+      content:
+        text/html:
+          schema:
+            type: string
+    Conflict:
+      description: "Город для удаления не найден."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorDto'
+          example:
+            code: NO_ELEMENT
+            message: No element for deletion
+    UnsupportedMediaType:
+      description: "Неподдерживаемый формат тела запроса."
+      content:
+        text/html:
+          schema:
+            type: string
+    ValidationError:
+      description: "Ошибка валидации."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorDto'
+          example:
+            code: CONSTRAINT_VIOLATION
+            message: Violation of data model constraints
+            details:
+              - field: createCity.arg0.coordinates.x
+                message: must be less than or equal to 434
+    InternalServerError:
+      description: "Внутренняя ошибка сервера."
+      content:
+        text/html:
+          schema:
+            type: string
