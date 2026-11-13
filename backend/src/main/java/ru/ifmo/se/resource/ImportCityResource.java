@@ -8,15 +8,18 @@ import java.util.logging.Logger;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.EntityPart;
 import jakarta.ws.rs.core.MediaType;
@@ -41,6 +44,16 @@ public class ImportCityResource {
     private ImportHistoryService historyService;
     @Context
     private SecurityContext securityContext;
+
+    @GET
+    @Path("history")
+    public Response getImportHistory(
+        @QueryParam("page") @DefaultValue("1") @Positive @Max(1_000_000) int page,
+        @QueryParam("size") @DefaultValue("20") @Positive @Max(1000) int size) {
+        String login = securityContext.getUserPrincipal().getName();
+        return Response.ok(historyService.getImportHistory(page, size, login,
+            securityContext.isUserInRole("ADMIN"))).build();
+    }
 
     @GET
     @Path("history/{id}")
