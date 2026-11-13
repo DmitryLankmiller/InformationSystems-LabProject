@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:helios": "tsc -b && vite build --mode helios",
     "lint": "eslint .",
     "preview": "vite preview"
   },

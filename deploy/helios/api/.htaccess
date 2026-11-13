@@ -1,0 +1,13 @@
+<Limit GET HEAD POST PATCH DELETE OPTIONS>
+    Require all granted
+</Limit>
+
+RewriteEngine On
+RewriteBase /~s373305/is/api/
+
+# Preserve Basic Auth when PHP runs through CGI/FastCGI.
+RewriteCond %{HTTP:Authorization} .
+RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+RewriteRule ^proxy\.php$ - [END]
+RewriteRule ^ proxy.php [END]

@@ -13,6 +13,7 @@ import jakarta.enterprise.concurrent.ManagedExecutorService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
+import jakarta.transaction.TransactionManager;
 import jakarta.transaction.Transactional;
 import jakarta.transaction.Transactional.TxType;
 import ru.ifmo.se.exception.ImportDataException;
@@ -87,7 +88,8 @@ public class ImportCityService {
                 String state = sqlError.getSQLState();
                 if (state != null) {
                     return switch (state) {
-                        case "23505" -> "Импорт содержит повторяющиеся значения или конфликтует с существующими данными.";
+                        case "23505" ->
+                            "Импорт содержит повторяющиеся значения или конфликтует с существующими данными.";
                         case "23503" -> "Связанный объект не найден или был удалён во время импорта.";
                         case "23502" -> "Не заполнено обязательное поле.";
                         case "23514" -> "Значения нарушают ограничения предметной области.";
