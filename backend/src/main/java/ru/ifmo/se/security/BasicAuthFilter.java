@@ -33,7 +33,9 @@ public class BasicAuthFilter implements ContainerRequestFilter {
             return;
         }
         String resource = segments.getFirst().getPath();
-        if (!resource.equals("import") && !resource.equals("login")) {
+        boolean loginRequest = resource.equals("auth") && segments.size() > 1
+            && segments.get(1).getPath().equals("login");
+        if (!resource.equals("import") && !loginRequest) {
             return;
         }
         String header = request.getHeaderString(HttpHeaders.AUTHORIZATION);

@@ -18,7 +18,7 @@ import ru.ifmo.se.dto.response.UserDto;
 import ru.ifmo.se.exception.ErrorCodes;
 import ru.ifmo.se.service.UserService;
 
-@Path("/")
+@Path("auth")
 @RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthResource {
