@@ -8,5 +8,6 @@ CREATE TABLE
         import_status import_status_enum NOT NULL,
         import_date TIMESTAMP NOT NULL DEFAULT NOW (),
         imported_rows_count INTEGER CHECK (imported_rows_count > 0),
+        error_msg TEXT,
         CHECK (import_status <> 'SUCCESS' OR imported_rows_count IS NOT NULL)
     );

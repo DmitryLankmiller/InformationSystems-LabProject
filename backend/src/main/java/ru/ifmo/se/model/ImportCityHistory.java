@@ -44,4 +44,7 @@ public class ImportCityHistory {
 
     @Column(name = "imported_rows_count")
     private Integer importedRowsCount;
+
+    @Column(name = "error_msg")
+    private String errorMsg;
 }
