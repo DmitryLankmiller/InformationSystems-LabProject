@@ -31,6 +31,31 @@ export interface CityPage {
 	totalPages: number;
 	totalElements: number;
 }
+export interface User {
+	id: number;
+	login: string;
+	role: 'USER' | 'ADMIN';
+}
+export interface Credentials {
+	login: string;
+	password: string;
+}
+export interface AuthSession {
+	user: User;
+	authorization: string;
+}
+export interface ImportHistory {
+	id: number;
+	fileName: string;
+	userLogin: string;
+	importStatus: 'RUNNING' | 'SUCCESS' | 'FAILED';
+	importDate: string;
+	importedRowsCount: number | null;
+	errorMsg: string | null;
+}
+export interface ImportPage extends Omit<CityPage, 'content'> {
+	content: ImportHistory[];
+}
 export interface CreateCity {
 	name: string;
 	coordinates: { x: number; y: number };
@@ -96,9 +121,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 	try {
 		const response = await fetch(`${base}${path}`, {
 			...options,
+			credentials: 'omit',
 			headers: {
 				Accept: 'application/json',
-				...(options.body ? { 'Content-Type': 'application/json' } : {}),
+				...(options.body && !(options.body instanceof FormData)
+					? { 'Content-Type': 'application/json' } : {}),
+				...options.headers,
 			},
 			signal,
 		});
@@ -145,7 +173,57 @@ export interface ListQuery {
 	governorName?: string;
 	sort?: string;
 }
+
+function basicAuthorization({ login, password }: Credentials) {
+	const bytes = new TextEncoder().encode(`${login}:${password}`);
+	return `Basic ${btoa(Array.from(bytes, (byte) => String.fromCharCode(byte)).join(''))}`;
+}
+
 export const api = {
+	login: async (credentials: Credentials): Promise<AuthSession> => {
+		const authorization = basicAuthorization(credentials);
+		try {
+			const user = await request<User>('/auth/login', {
+				method: 'POST', headers: { Authorization: authorization },
+			});
+			return { user, authorization };
+		} catch (error) {
+			if (error instanceof ApiError && error.status === 401)
+				throw new ApiError(401, 'Неверный логин или пароль.');
+			throw error;
+		}
+	},
+	register: async (credentials: Credentials): Promise<AuthSession> => {
+		try {
+			const user = await request<User>('/auth/register', {
+				method: 'POST', body: JSON.stringify(credentials),
+			});
+			return { user, authorization: basicAuthorization(credentials) };
+		} catch (error) {
+			if (error instanceof ApiError && error.status === 409)
+				throw new ApiError(409, 'Этот логин уже занят. Выберите другой.');
+			throw error;
+		}
+	},
+	imports: (page: number, size: number, session: AuthSession, signal?: AbortSignal) =>
+		request<ImportPage>(`/import/history?${new URLSearchParams({ page: String(page), size: String(size) })}`, {
+			headers: { Authorization: session.authorization }, signal,
+		}),
+	importHistory: (id: number, session: AuthSession, signal?: AbortSignal) =>
+		request<ImportHistory>(`/import/history/${id}`, {
+			headers: { Authorization: session.authorization }, signal,
+		}),
+	importCsv: (file: File, session: AuthSession) => {
+		const body = new FormData();
+		body.append('import_csv', file);
+		return request<ImportHistory>('/import/accept', {
+			method: 'POST', headers: { Authorization: session.authorization }, body,
+		}).catch((error: unknown) => {
+			if (error instanceof ApiError && error.status === 413)
+				throw new ApiError(413, 'Файл слишком большой. Разделите его на несколько файлов.');
+			throw error;
+		});
+	},
 	cities: (query: ListQuery, signal?: AbortSignal) => {
 		const params = new URLSearchParams();
 		Object.entries(query).forEach(([key, value]) => {

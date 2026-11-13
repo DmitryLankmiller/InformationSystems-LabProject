@@ -4,6 +4,8 @@ export interface ErrorDetail {
 }
 
 const labels: Record<string, string> = {
+	login: 'Логин',
+	password: 'Пароль',
 	name: 'Название города',
 	x: 'Координата X',
 	y: 'Координата Y',
@@ -37,6 +39,7 @@ export function fieldKey(path: string) {
 export const fieldLabel = (path: string) => labels[fieldKey(path)];
 
 export function validationMessage(message: string) {
+	if (/[а-яё]/i.test(message)) return message;
 	const exact: Record<string, string> = {
 		'must not be null': 'Заполните это поле.',
 		'must not be blank': 'Поле не должно быть пустым.',

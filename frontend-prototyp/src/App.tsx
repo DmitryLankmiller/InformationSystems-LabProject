@@ -1,16 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { api } from './api';
-import type { City, CityPage, Health } from './api';
+import type { AuthSession, City, CityPage, Health } from './api';
+import { AuthDialog } from './AuthDialog';
 import { CityForm } from './CityForm';
 import { Empty, ErrorNotice, Icon, Modal } from './components';
 import { climates, date, living, number } from './format';
 import { SpecialFunctions } from './SpecialFunctions';
+import { Imports } from './Imports';
 import { focusInvalid, parseNumber, positiveId } from './validation';
 import { useFieldValidation } from './useFieldValidation';
 import './App.css';
 
-type Section = 'cities' | 'operations' | 'health';
+type Section = 'cities' | 'operations' | 'health' | 'imports';
 type ModalState =
 	| { type: 'create' }
 	| { type: 'detail' | 'edit' | 'delete'; city: City }
@@ -22,8 +24,14 @@ interface SortRule {
 const sections: { id: Section; label: string; icon: string }[] = [
 	{ id: 'cities', label: 'Города', icon: 'grid' },
 	{ id: 'operations', label: 'Специальные операции', icon: 'spark' },
+	{ id: 'imports', label: 'Импорты', icon: 'imports' },
 	{ id: 'health', label: 'Состояние системы', icon: 'pulse' },
 ];
+
+function sectionFromHash(): Section {
+	const section = location.hash.slice(1).split('/')[0];
+	return sections.some((item) => item.id === section) ? section as Section : 'cities';
+}
 
 function CityDetails({
 	city,
@@ -110,11 +118,9 @@ function CityDetails({
 }
 
 function App() {
-	const [section, setSection] = useState<Section>(() =>
-		sections.some((s) => s.id === location.hash.slice(1))
-			? (location.hash.slice(1) as Section)
-			: 'cities',
-	);
+	const [section, setSection] = useState<Section>(sectionFromHash);
+	const [session, setSession] = useState<AuthSession | null>(null);
+	const [showAuth, setShowAuth] = useState(false);
 	const [page, setPage] = useState(1);
 	const [size, setSize] = useState(10);
 	const [search, setSearch] = useState({ name: '', governorName: '' });
@@ -147,18 +153,17 @@ function App() {
 		[page, size, filters, sort],
 	);
 	const refresh = useCallback(() => setRefreshKey((key) => key + 1), []);
+	const onUnauthorized = useCallback(() => {
+		setSession(null);
+		setToast('Не удалось подтвердить вход. Войдите ещё раз.');
+	}, []);
 	const open = useCallback((city: City) => {
 		setDetailError(null);
 		setModal({ type: 'detail', city });
 	}, []);
 
 	useEffect(() => {
-		const change = () =>
-			setSection(
-				sections.some((s) => s.id === location.hash.slice(1))
-					? (location.hash.slice(1) as Section)
-					: 'cities',
-			);
+		const change = () => setSection(sectionFromHash());
 		window.addEventListener('hashchange', change);
 		return () => window.removeEventListener('hashchange', change);
 	}, []);
@@ -352,7 +357,7 @@ function App() {
 				</a>
 				<div className="workspace">
 					<strong>Информационные системы</strong>
-					<span>Лабораторная работа №1</span>
+					<span>Лабораторная работа №2</span>
 				</div>
 				<span className="nav-caption">Приложение</span>
 				<nav>
@@ -374,6 +379,12 @@ function App() {
 				<div className="sidebar-bottom"></div>
 			</aside>
 			<div className="main-shell">
+				<header className="account-bar">
+					{session ? <>
+						<span className="account-login"><Icon name="people" size={19} />{session.user.login}</span>
+						<button className="button secondary" onClick={() => setSession(null)}>Выйти</button>
+					</> : <button className="button secondary" onClick={() => setShowAuth(true)}>Войти</button>}
+				</header>
 				<main>
 					{section === 'cities' && (
 						<>
@@ -761,6 +772,17 @@ function App() {
 							<ErrorNotice error={lookupError} />
 						</>
 					)}
+					{section === 'imports' && (session
+						? <Imports key={session.user.login} session={session} onUnauthorized={onUnauthorized} />
+						: <>
+							<div className="page-heading"><div><h1>Импорты</h1><p>Загрузка городов из CSV и история обработки файлов.</p></div></div>
+							<div className="auth-required">
+								<span className="operation-icon"><Icon name="lock" size={25} /></span>
+								<h2>Войдите, чтобы работать с импортами</h2>
+								<p>После входа можно загрузить файл и посмотреть историю своих импортов.</p>
+								<button className="button primary" onClick={() => setShowAuth(true)}>Войти или зарегистрироваться</button>
+							</div>
+						</>)}
 					{section === 'operations' && <SpecialFunctions onOpen={open} />}
 					{section === 'health' && (
 						<>
@@ -822,6 +844,11 @@ function App() {
 				</main>
 				<footer className="app-footer"></footer>
 			</div>
+			{showAuth && <AuthDialog onClose={() => setShowAuth(false)} onAuthenticated={(authenticated) => {
+				setSession(authenticated);
+				setShowAuth(false);
+				setToast(`Вы вошли как ${authenticated.user.login}`);
+			}} />}
 			{modal && (
 				<Modal
 					key={

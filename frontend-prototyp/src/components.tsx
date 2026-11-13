@@ -6,6 +6,9 @@ import { fieldLabel } from './errors';
 
 export function Icon({ name, size = 20 }: { name: string; size?: number }) {
 	const paths: Record<string, ReactNode> = {
+		imports: <><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5" /></>,
+		file: <><path d="M14 2H5v20h14V7ZM14 2v5h5M8 12h8M8 16h6" /></>,
+		lock: <><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 5v2" /></>,
 		city: (
 			<>
 				<path d="M3 21V9h6v12M9 21V3h7v18M16 21v-9h5v9M1 21h22" />
