@@ -50,8 +50,8 @@ public class ImportCityService {
     }
 
     @Transactional(value = TxType.REQUIRED)
-    public ImportCityHistory acceptImport(InputStream in, String fileName) {
-        ImportCityHistory history = historyService.createNewImportHistory(fileName);
+    public ImportCityHistory acceptImport(InputStream in, String fileName, String userLogin) {
+        ImportCityHistory history = historyService.createNewImportHistory(fileName, userLogin);
         try {
             InputStream copyIn = new ByteArrayInputStream(in.readAllBytes());
             executor.submit(importTask(copyIn, history.getId()));

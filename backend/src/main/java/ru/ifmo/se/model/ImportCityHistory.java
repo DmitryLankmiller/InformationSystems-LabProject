@@ -31,8 +31,8 @@ public class ImportCityHistory {
     @Column(name = "file_name")
     private String fileName;
 
-    @Column(name = "user_id")
-    private int userId;
+    @Column(name = "user_login")
+    private String userLogin;
 
     @Column(name = "import_status")
     @Enumerated(EnumType.STRING)

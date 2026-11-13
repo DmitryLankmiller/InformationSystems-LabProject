@@ -25,11 +25,11 @@ public class ImportHistoryService {
     }
 
     @Transactional(value = TxType.REQUIRES_NEW)
-    public ImportCityHistory createNewImportHistory(String fileName) {
+    public ImportCityHistory createNewImportHistory(String fileName, String userLogin) {
         try {
             ImportCityHistory history = ImportCityHistory.builder()
                 .fileName(fileName)
-                .userId(0)
+                .userLogin(userLogin)
                 .importStatus(ImportStatus.RUNNING)
                 .build();
             return historyRepository.save(history);

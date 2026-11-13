@@ -10,7 +10,7 @@ import ru.ifmo.se.model.ImportStatus;
 public class ImportCityHistoryDto {
     private int id;
     private String fileName;
-    private int userId;
+    private String userLogin;
     private ImportStatus importStatus;
     private java.time.LocalDateTime importDate;
     private Integer importedRowsCount;
@@ -20,7 +20,7 @@ public class ImportCityHistoryDto {
         return ImportCityHistoryDto.builder()
             .id(e.getId())
             .fileName(e.getFileName())
-            .userId(e.getUserId())
+            .userLogin(e.getUserLogin())
             .importStatus(e.getImportStatus())
             .importDate(e.getImportDate())
             .importedRowsCount(e.getImportedRowsCount())

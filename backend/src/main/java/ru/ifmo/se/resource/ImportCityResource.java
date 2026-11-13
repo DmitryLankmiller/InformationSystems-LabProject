@@ -17,10 +17,14 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.EntityPart;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
+import ru.ifmo.se.dto.response.ErrorDto;
 import ru.ifmo.se.dto.response.ImportCityHistoryDto;
+import ru.ifmo.se.exception.ErrorCodes;
 import ru.ifmo.se.model.ImportCityHistory;
 import ru.ifmo.se.service.ImportCityService;
 import ru.ifmo.se.service.ImportHistoryService;
@@ -35,11 +39,20 @@ public class ImportCityResource {
     private ImportCityService importService;
     @Inject
     private ImportHistoryService historyService;
+    @Context
+    private SecurityContext securityContext;
 
     @GET
     @Path("history/{id}")
     public Response getImportHistoryById(@PathParam("id") @NotNull @Positive Integer id) {
         ImportCityHistory history = historyService.getImportHistoryById(id);
+        String login = securityContext.getUserPrincipal().getName();
+        if (!history.getUserLogin().equals(login) && !securityContext.isUserInRole("ADMIN")) {
+            return Response.status(Response.Status.FORBIDDEN)
+                .entity(ErrorDto.builder().code(ErrorCodes.FORBIDDEN)
+                    .message("Нет доступа к чужой операции импорта.").build())
+                .build();
+        }
 
         return Response.ok()
             .entity(ImportCityHistoryDto.from(history))
@@ -50,10 +63,12 @@ public class ImportCityResource {
     @Path("accept")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response acceptImportTask(@FormParam("import_csv") @NotNull EntityPart entityPart) {
+        String login = securityContext.getUserPrincipal().getName();
         ImportCityHistory history = null;
         try (InputStream in = entityPart.getContent()) {
             history = importService.acceptImport(in,
-                entityPart.getFileName().orElseGet(() -> "new-import-%s".formatted(UUID.randomUUID().toString())));
+                entityPart.getFileName().orElseGet(() -> "new-import-%s".formatted(UUID.randomUUID().toString())),
+                login);
         } catch (IOException e) {
             LOGGER.log(Level.WARNING, "Не удалось закрыть поток загруженного CSV-файла.", e);
         }

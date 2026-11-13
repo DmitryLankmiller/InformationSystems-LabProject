@@ -4,7 +4,7 @@ CREATE TABLE
     IF NOT EXISTS import_city_history (
         id SERIAL PRIMARY KEY,
         file_name TEXT NOT NULL CHECK (file_name <> ''),
-        user_id INTEGER NOT NULL REFERENCES users,
+        user_login TEXT NOT NULL REFERENCES users (user_name),
         import_status import_status_enum NOT NULL,
         import_date TIMESTAMP NOT NULL DEFAULT NOW (),
         imported_rows_count INTEGER CHECK (imported_rows_count > 0),
