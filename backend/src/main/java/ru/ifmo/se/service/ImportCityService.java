@@ -28,11 +28,10 @@ public class ImportCityService {
     private ImportCityExecutor importExecutor;
 
     private Runnable importTask(InputStream in, int historyId) throws IOException {
-        InputStream copyIn = new ByteArrayInputStream(in.readAllBytes());
         return () -> {
             int rows = 0;
             try {
-                rows = importExecutor.executeImport(copyIn, historyId);
+                rows = importExecutor.executeImport(in, historyId);
             } catch (ImportDataException e) {
                 historyService.markImportHistoryFailed(historyId, e.getMessage());
                 return;
@@ -53,7 +52,8 @@ public class ImportCityService {
     public ImportCityHistory acceptImport(InputStream in, String fileName) {
         ImportCityHistory history = historyService.createNewImportHistory(fileName);
         try {
-            executor.submit(importTask(in, history.getId()));
+            InputStream copyIn = new ByteArrayInputStream(in.readAllBytes());
+            executor.submit(importTask(copyIn, history.getId()));
         } catch (IOException | RejectedExecutionException e) {
             historyService.markImportHistoryFailed(history, e.getMessage());
             throw new ImportSubmissionException(e);
