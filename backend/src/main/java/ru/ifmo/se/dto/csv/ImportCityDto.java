@@ -13,30 +13,30 @@ import ru.ifmo.se.model.StandardOfLiving;
 
 @Data
 public class ImportCityDto {
-    @NotBlank
+    @NotBlank(message = "Название города не должно быть пустым.")
     private String name; // Поле не может быть null, Строка не может быть пустой
     @JsonProperty(value = "coordinates_x")
-    @Max(value = 434)
-    @NotNull
+    @Max(value = 434, message = "Координата X должна быть не больше {value}.")
+    @NotNull(message = "Координата X обязательна.")
     private Integer coordinatesX; // Максимальное значение поля: 434, Поле не может быть null
     @JsonProperty(value = "coordinates_y")
-    @NotNull
+    @NotNull(message = "Координата Y обязательна.")
     private Float coordinatesY; // Поле не может быть null
-    @NotNull
-    @Positive
+    @NotNull(message = "Площадь обязательна.")
+    @Positive(message = "Площадь должна быть больше нуля.")
     private Float area; // Значение поля должно быть больше 0
-    @NotNull
-    @Positive
+    @NotNull(message = "Численность населения обязательна.")
+    @Positive(message = "Численность населения должна быть больше нуля.")
     private Integer population; // Значение поля должно быть больше 0
     @JsonProperty(value = "establishment_date")
     private java.time.ZonedDateTime establishmentDate;
-    @NotNull
+    @NotNull(message = "Признак столицы обязателен.")
     private Boolean capital; // Поле не может быть null
     @JsonProperty(value = "meters_above_sea_level")
     private Double metersAboveSeaLevel;
     @JsonProperty(value = "telephone_code")
-    @Positive
-    @Max(value = 100000)
+    @Positive(message = "Телефонный код должен быть больше нуля.")
+    @Max(value = 100000, message = "Телефонный код должен быть не больше {value}.")
     private Long telephoneCode; // Значение поля должно быть больше 0, Максимальное значение поля: 100000
     private Climate climate; // Поле может быть null
     @JsonProperty(value = "standard_of_living")
@@ -48,7 +48,7 @@ public class ImportCityDto {
     @JsonProperty(value = "governor_birthday")
     private java.time.ZonedDateTime governorBirthday;
 
-    @AssertTrue
+    @AssertTrue(message = "Укажите ID существующего губернатора или непустое имя нового.")
     private boolean isGovernorProvided() {
         return governorId != null || governorName != null && !governorName.isBlank();
     }

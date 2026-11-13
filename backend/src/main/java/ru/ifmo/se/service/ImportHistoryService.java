@@ -43,13 +43,14 @@ public class ImportHistoryService {
         try {
             history.setImportStatus(ImportStatus.SUCCESS);
             history.setImportedRowsCount(rows);
+            history.setErrorMsg(null);
             historyRepository.update(history);
         } catch (RuntimeException e) { // db exception
-            throw new UpdateImportHistoryException();
+            throw new UpdateImportHistoryException("Не удалось сохранить результат импорта.", e);
         }
     }
 
-    @Transactional(value = TxType.REQUIRED)
+    @Transactional(value = TxType.REQUIRES_NEW)
     public void markImportHistorySuccess(int historyId, int rows) {
         ImportCityHistory history = historyRepository.findById(historyId).orElseThrow();
         markImportHistorySuccess(history, rows);
@@ -58,11 +59,12 @@ public class ImportHistoryService {
     @Transactional(value = TxType.REQUIRES_NEW)
     public ImportCityHistory markImportHistoryFailed(ImportCityHistory history, String errorMsg) {
         history.setImportStatus(ImportStatus.FAILED);
+        history.setImportedRowsCount(null);
         history.setErrorMsg(errorMsg);
         return historyRepository.update(history);
     }
 
-    @Transactional(value = TxType.REQUIRED)
+    @Transactional(value = TxType.REQUIRES_NEW)
     public ImportCityHistory markImportHistoryFailed(int historyId, String errorMsg) {
         ImportCityHistory history = historyRepository.findById(historyId).orElseThrow();
         return markImportHistoryFailed(history, errorMsg);

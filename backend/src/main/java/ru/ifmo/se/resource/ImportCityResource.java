@@ -3,6 +3,8 @@ package ru.ifmo.se.resource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -27,6 +29,8 @@ import ru.ifmo.se.service.ImportHistoryService;
 @RequestScoped
 @Produces(MediaType.APPLICATION_JSON)
 public class ImportCityResource {
+    private static final Logger LOGGER = Logger.getLogger(ImportCityResource.class.getName());
+
     @Inject
     private ImportCityService importService;
     @Inject
@@ -51,7 +55,7 @@ public class ImportCityResource {
             history = importService.acceptImport(in,
                 entityPart.getFileName().orElseGet(() -> "new-import-%s".formatted(UUID.randomUUID().toString())));
         } catch (IOException e) {
-            // log
+            LOGGER.log(Level.WARNING, "Не удалось закрыть поток загруженного CSV-файла.", e);
         }
         return Response.accepted()
             .entity(ImportCityHistoryDto.from(history))
